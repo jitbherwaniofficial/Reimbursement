@@ -1,3 +1,4 @@
+const { response } = require('express');
 const express = require('express');
 const app = express();
 const  mysql = require('mysql');
@@ -37,9 +38,11 @@ app.post('/',(req,res)=>{
     }
     console.log(req.body)
     con.query("Insert into conveyance SET ? ",data,(err,result,fields)=>{
-        if(error){
-            return error;
+        if(err){
+            response.send("Error");
         }
         res.send(result)
     })
 })
+
+app.listen(3000,console.log("Listening"))
