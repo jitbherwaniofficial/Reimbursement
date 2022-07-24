@@ -1,48 +1,54 @@
-const { response } = require('express');
 const express = require('express');
 const app = express();
 const  mysql = require('mysql');
-
 const con = mysql.createConnection({
     host:'localhost',
-    user:'root',
+    username:'root',
     password:'',
-    database: 'reimbursement'
-})
+    database:"test"
+});
 
 con.connect((err)=>{
     if(err){
-        console.log("Error in Connection");
+        console.warn("ERROR");
+    }
+    else{
+        console.warn("CONNECTED");
     }
 })
 
+// con.query("select * from conveyance",(err,result)=>{
+//     console.warn("Result",result);
+// })
+
+app.use(express.json());
 app.get('/',(req,res)=>{
-    res.send("select * from conveyance",(err,result)=>{
+    con.query("select * from conveyance",(err,result)=>{
         if(err){
-            res.send("Error");
+            res.status(400).send("ERROR")
         }else{
-            res.send(result)
+            res.status(200).json(result)
         }
     })
 })
 
-app.post('/',(req,res)=>{
-    const data = {
-        from:"september",
-        to:"october",
-        purpose:"Market Visit",
-        mode:"Bike",
-        km:80,
-        InvNo:9,
-        Amt:8000
-    }
-    console.log(req.body)
-    con.query("Insert into conveyance SET ? ",data,(err,result,fields)=>{
+app.get("/:id",(req,res)=>{
+    con.query("select * from conveyance WHERE id = "+req.params.id,(err,result)=>{
         if(err){
-            response.send("Error");
+            res.status(400).send("ERROR")
+        }else{
+            res.status(200).json(result)
         }
+    })
+})
+
+app.post("/",(req,res)=>{
+    const post = req.body;
+    con.query("INsert into conveyance SET ?",post,(err,result,fields)=>{
+        if(err) err;
         res.send(result)
     })
+        
 })
 
-app.listen(3000,console.log("Listening"))
+app.listen(3001,console.log("Listening"))
